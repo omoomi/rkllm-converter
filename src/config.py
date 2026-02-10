@@ -11,6 +11,7 @@ class ConversionConfig:
     """Configuration for model conversion."""
 
     model_path: str
+    model_name: Optional[str] = None  # Original model name for filename (e.g., "Qwen3-1.7B")
     lora_path: Optional[str] = None
     quantization: Literal["w8a8", "w4a16"] = "w8a8"
     context_length: int = 4096
@@ -33,12 +34,16 @@ class ConversionConfig:
 
     def get_output_filename(self) -> str:
         """Generate output filename based on model and settings."""
-        model_name = self.model_path.split("/")[-1]
+        # Use model_name if provided, otherwise extract from model_path
+        if self.model_name:
+            model_name = self.model_name
+        else:
+            model_name = self.model_path.split("/")[-1]
         lora_suffix = ""
         if self.lora_path:
             lora_name = self.lora_path.split("/")[-1]
             lora_suffix = f"_{lora_name}"
-        
+
         return f"{model_name}{lora_suffix}_{self.quantization}_ctx{self.context_length}_{self.platform}.rkllm"
 
     def get_optimization_level(self) -> int:

@@ -148,9 +148,13 @@ def main(
     
     try:
         token = get_hf_token()
-        
+
+        # Extract model name from model path (e.g., "Qwen/Qwen3-1.7B" -> "Qwen3-1.7B")
+        model_name = model.split("/")[-1] if "/" in model or "\\" in model else model
+
         config = ConversionConfig(
             model_path=model,
+            model_name=model_name,
             lora_path=lora,
             quantization=quantization,
             context_length=context_length,

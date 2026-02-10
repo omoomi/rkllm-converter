@@ -1,9 +1,33 @@
+# RKLLM Model Converter Requirements
+
+# Core RKLLM toolkit (must be installed from wheel)
+# Download from: https://github.com/airockchip/rknn-llm/tree/main/rkllm-toolkit/packages
 rkllm_toolkit>=1.2.3
-transformers==4.55.2
-torch==2.6.0
-datasets==4.1.1
-accelerate>=1.0.1,<=1.5.2
+
+# PyTorch (install with CUDA support if available)
+# CPU: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# CUDA 12.4: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+torch>=2.0.0
+torchvision>=0.15.0
+
+# HuggingFace libraries
+transformers>=4.40.0
+datasets>=4.1.0
+accelerate>=0.20.0
 huggingface_hub>=0.20.0
 peft>=0.11.0
+safetensors>=0.4.0
+
+# CLI and display
 click>=8.0.0
 rich>=13.0.0
+colorlog>=6.8.0
+
+# Additional dependencies for rkllm_toolkit
+numpy>=1.23.0
+protobuf>=3.20.0
+sentencepiece>=0.1.99
+scipy>=1.5.4
+tiktoken>=0.5.0
+einops>=0.4.0
+tabulate>=0.9.0
