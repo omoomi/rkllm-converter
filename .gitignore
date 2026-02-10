@@ -2,12 +2,15 @@
 venv/
 env/
 ENV/
+.venv/
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
+*.pyo
 .Python
 
 # Distribution / packaging
@@ -31,8 +34,11 @@ wheels/
 # Testing
 .pytest_cache/
 .coverage
+coverage.xml
+coverage.*
 htmlcov/
 .tox/
+.pytest_cache/
 
 # IDEs
 .vscode/
@@ -40,10 +46,14 @@ htmlcov/
 *.swp
 *.swo
 *~
+*.sublime-*
+.vscode/
+.spyderproject/
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Model files (large)
 *.rkllm
@@ -51,12 +61,46 @@ Thumbs.db
 *.gguf
 *.safetensors
 *.bin
+*.pt
+*.pth
+*.ckpt
 
 # Calibration data
 data_quant.json
+calibration_data.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+*.log.*
+
+# Python type checking & formatting
+.mypy_cache/
+.dmypy.json
+.dmypy.ini
+.pyre
+.pytype
+.ruff_cache/
+.stestr
+
+# Temporary files
+*.tmp
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
 
 # HuggingFace cache (optional, uncomment if you want to ignore)
 # ~/.cache/huggingface/
 
-# Logs
-*.log
+# Package managers
+.poetry/
+.pdm-store/
+Pipfile
+Pipfile.lock
+poetry.lock
