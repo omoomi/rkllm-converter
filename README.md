@@ -5,7 +5,7 @@ Convert HuggingFace models to `.rkllm` format for Rockchip NPU deployment on RK3
 ## Features
 
 - **Auto-download models** from HuggingFace Hub to default cache directory
-- **Multiple quantization formats**: w8a8 (better quality) and w4a16 (smaller size)
+- **Optional quantization**: w8a8 (better quality), w4a16 (smaller size), or no quantization (default)
 - **LoRA adapter support** for fine-tuned models
 - **Context length customization** (32 to 16384 tokens, included in output filename)
 - **CPU and GPU support** for model loading and quantization data generation
@@ -75,7 +75,19 @@ pip install -r requirements.txt
 
 ### Basic Conversion
 
-Convert a model with default settings:
+Convert a model without quantization (default):
+
+```bash
+python -m src \
+  --model Qwen/Qwen3-1.7B \
+  --context-length 4096
+```
+
+**Output filename:** `Qwen3-1.7B_noquant_ctx4096_RK3588.rkllm`
+
+### With Quantization
+
+Convert a model with quantization:
 
 ```bash
 python -m src \
@@ -150,7 +162,7 @@ python -m src --help
 |--------|-------|-------------|---------|
 | `--model` | `-m` | HuggingFace model name or local path | **(required)** |
 | `--lora` | `-l` | LoRA adapter path | None |
-| `--quantization` | `-q` | Quantization format (`w8a8`, `w4a16`) | `w8a8` |
+| `--quantization` | `-q` | Quantization format (`w8a8`, `w4a16`) | None (no quantization) |
 | `--context-length` | `-c` | Maximum context length (32-16384) | `4096` |
 | `--platform` | `-p` | Target platform (`RK3588`, `RK3576`, `RK3562`, `RV1126B`) | `RK3588` |
 | `--npu-cores` | `-n` | Number of NPU cores | `3` |
@@ -178,6 +190,11 @@ The converter supports all models compatible with RKLLM toolkit:
 See the [RKLLM documentation](https://github.com/airockchip/rknn-llm) for the full list.
 
 ## Quantization Formats
+
+### No Quantization (Default)
+- No quantization applied
+- Largest file size, highest quality
+- Best for models that will be used as-is without compression
 
 ### w8a8 (Recommended)
 - 8-bit weights and activations
@@ -210,10 +227,13 @@ When no custom output path is specified, filenames are auto-generated as:
 {model_name}_{quantization}_ctx{context_length}_{platform}.rkllm
 ```
 
+For non-quantized models, the quantization suffix is `_noquant`.
+
 Examples:
-- `Qwen3-1.7B_w8a8_ctx4096_RK3588.rkllm`
-- `Llama-3-8B_w4a16_ctx8192_RK3576.rkllm`
-- `my-custom-model_w8a8_ctx2048_RK3588.rkllm`
+- `Qwen3-1.7B_noquant_ctx4096_RK3588.rkllm` (no quantization)
+- `Qwen3-1.7B_w8a8_ctx4096_RK3588.rkllm` (w8a8 quantization)
+- `Llama-3-8B_w4a16_ctx8192_RK3576.rkllm` (w4a16 quantization)
+- `my-custom-model_noquant_ctx2048_RK3588.rkllm` (no quantization)
 
 ## HuggingFace Token
 

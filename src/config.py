@@ -13,7 +13,7 @@ class ConversionConfig:
     model_path: str
     model_name: Optional[str] = None  # Original model name for filename (e.g., "Qwen3-1.7B")
     lora_path: Optional[str] = None
-    quantization: Literal["w8a8", "w4a16"] = "w8a8"
+    quantization: Optional[Literal["w8a8", "w4a16"]] = None  # None means no quantization
     context_length: int = 4096
     platform: Literal["RK3588", "RK3576", "RK3562", "RV1126B"] = "RK3588"
     npu_cores: int = 3
@@ -44,7 +44,8 @@ class ConversionConfig:
             lora_name = self.lora_path.split("/")[-1]
             lora_suffix = f"_{lora_name}"
 
-        return f"{model_name}{lora_suffix}_{self.quantization}_ctx{self.context_length}_{self.platform}.rkllm"
+        quant_suffix = f"_{self.quantization}" if self.quantization else "_noquant"
+        return f"{model_name}{lora_suffix}{quant_suffix}_ctx{self.context_length}_{self.platform}.rkllm"
 
     def get_optimization_level(self) -> int:
         """Get recommended optimization level."""

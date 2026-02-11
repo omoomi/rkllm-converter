@@ -13,14 +13,14 @@ from .config import ConversionConfig
 from .utils import print_conversion_summary
 
 
-def convert_model(config: ConversionConfig, quant_data_path: str) -> str:
+def convert_model(config: ConversionConfig, quant_data_path: Optional[str]) -> str:
     """
     Convert a HuggingFace model to RKLLM format.
-    
+
     Args:
         config: ConversionConfig with all settings
-        quant_data_path: Path to calibration data JSON file
-    
+        quant_data_path: Path to calibration data JSON file (None if no quantization)
+
     Returns:
         Path to generated .rkllm file
     """
@@ -69,18 +69,21 @@ def convert_model(config: ConversionConfig, quant_data_path: str) -> str:
             build_task = progress.add_task("[bold green]Building model...", total=100)
             progress.update(build_task, advance=10)
             
+            # Only quantize if quantization is enabled
+            do_quant = config.quantization is not None
             qparams = None
-            quant_alg = config.get_quantization_algorithm()
-            
+            quant_dtype = config.quantization_dtype() if do_quant else None
+            quant_alg = config.get_quantization_algorithm() if do_quant else None
+
             ret = llm.build(
-                do_quantization=True,
+                do_quantization=do_quant,
                 optimization_level=config.get_optimization_level(),
-                quantized_dtype=config.quantization_dtype(),
+                quantized_dtype=quant_dtype,
                 quantized_algorithm=quant_alg,
                 target_platform=config.platform,
                 num_npu_core=config.npu_cores,
                 extra_qparams=qparams,
-                dataset=quant_data_path,
+                dataset=quant_data_path if do_quant else None,
                 hybrid_rate=0,
                 max_context=config.context_length
             )
@@ -128,4 +131,4 @@ def convert_model(config: ConversionConfig, quant_data_path: str) -> str:
     return output_path
 
 
-ConversionConfig.quantization_dtype = lambda self: self.quantization.replace("w", "W").replace("a", "A")
+ConversionConfig.quantization_dtype = lambda self: self.quantization.replace("w", "W").replace("a", "A") if self.quantization else None

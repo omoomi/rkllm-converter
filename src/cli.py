@@ -39,9 +39,8 @@ console = Console()
 @click.option(
     "--quantization", "-q",
     type=click.Choice(["w8a8", "w4a16"], case_sensitive=False),
-    default="w8a8",
-    show_default=True,
-    help="Quantization format"
+    default=None,
+    help="Quantization format (w8a8, w4a16, or omit for no quantization)"
 )
 @click.option(
     "--context-length", "-c",
@@ -175,7 +174,7 @@ def main(
         console.print(f"\n[bold cyan]Model:[/bold cyan] {model}")
         if lora:
             console.print(f"[bold cyan]LoRA Adapter:[/bold cyan] {lora}")
-        console.print(f"[bold cyan]Quantization:[/bold cyan] {quantization}")
+        console.print(f"[bold cyan]Quantization:[/bold cyan] {quantization if quantization else '(none)'}")
         console.print(f"[bold cyan]Context Length:[/bold cyan] {context_length}")
         console.print(f"[bold cyan]Platform:[/bold cyan] {platform}")
         
@@ -190,21 +189,25 @@ def main(
             lora_path = None
         
         config.model_path = model_path
-        
+
         output_dir = "."
         if output:
             output_dir = str(Path(output).parent)
-        
-        if skip_data_gen and os.path.exists(os.path.join(output_dir, "data_quant.json")):
+
+        # Skip quantization data generation if quantization is disabled
+        if config.quantization is None:
+            quant_data_path = None
+            console.print("[bold yellow]Quantization disabled - skipping calibration data generation[/bold yellow]")
+        elif skip_data_gen and os.path.exists(os.path.join(output_dir, "data_quant.json")):
             quant_data_path = os.path.join(output_dir, "data_quant.json")
             console.print(f"[bold yellow]Using existing calibration data:[/bold yellow] {quant_data_path}")
         else:
             quant_data_path = generate_quantization_data_from_config(config, output_dir)
-        
+
         if output:
             validated_output = validate_output_path(output)
             config.output_path = validated_output
-        
+
         # Lazy import of convert_model to handle missing rkllm_toolkit gracefully
         from .converter import convert_model
         output_file = convert_model(config, quant_data_path)
